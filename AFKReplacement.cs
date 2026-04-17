@@ -63,30 +63,26 @@ public class AFKReplacement
         }
     }
 
-    internal static void OnPlayerDying(PlayerDyingEventArgs ev)
+    internal static void OnDisconnected(Player player)
     {
         if (!withinRoundStart)
             return;
 
-        if (ev.Player.Role.IsScp() && ev.Player.Role != RoleTypeId.Scp0492)
+        if (player.Role.IsScp() && player.Role != RoleTypeId.Scp0492)
         {
-            if (ev.Attacker != null)
-                return;
-            if (ev.Player.IsDummy)
-                return;
-            if (ev.Player.HasEffect<PitDeath>())
+            if (player.IsDummy)
                 return;
 
-            if (disconnectedRoleQueue.ContainsKey(ev.Player.Role))
-                disconnectedRoleQueue.Remove(ev.Player.Role);
+            if (disconnectedRoleQueue.ContainsKey(player.Role))
+                disconnectedRoleQueue.Remove(player.Role);
 
             if (!Main.Instance.Config.DisableXPLoss)
-                XPSystem.BackEnd.XpSystemAPI.AddXP(ev.Player, -500, "<b>Disconnected as an SCP</b>", "red");
+                XPSystem.BackEnd.XpSystemAPI.AddXP(player, -500, "<b>Disconnected as an SCP</b>", "red");
 
-            if (!offendingPlayers.Contains(ev.Player.IpAddress))
-                offendingPlayers.Add(ev.Player.IpAddress);
+            if (!offendingPlayers.Contains(player.IpAddress))
+                offendingPlayers.Add(player.IpAddress);
 
-            disconnectedRoleQueue.Add(ev.Player.Role, CacheHealth(ev.Player));
+            disconnectedRoleQueue.Add(player.Role, CacheHealth(player));
             AllowReplacement();
         }
     }

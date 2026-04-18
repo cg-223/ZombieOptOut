@@ -102,6 +102,8 @@ public class AFKReplacement
             return;
         if (!withinRoundStart)
             return;
+        if (ev.Player.Role == RoleTypeId.Scp0492)
+            return;
 
         if (ev.Effect.name.ToLower() == "pitdeath")
         {

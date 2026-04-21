@@ -34,7 +34,7 @@ public class Main : Plugin<Config>
     }
     public override void Disable()
     {
-        harmony.UnpatchAll();
+        harmony.UnpatchAll(harmony.Id);
         Instance = null;
 
         LabApi.Events.Handlers.Scp049Events.ResurrectedBody -= OptOutSystem.RevivedZombie;

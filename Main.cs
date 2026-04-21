@@ -28,7 +28,6 @@ public class Main : Plugin<Config>
         LabApi.Events.Handlers.Scp049Events.ResurrectedBody += OptOutSystem.RevivedZombie;
         LabApi.Events.Handlers.ServerEvents.RoundStarted += OptOutSystem.RoundStart;
         LabApi.Events.Handlers.ServerEvents.RoundStarted += AFKReplacement.OnServerRoundStarted;
-        LabApi.Events.Handlers.PlayerEvents.ChangingRole += AFKReplacement.OnRoleChanging;
         LabApi.Events.Handlers.PlayerEvents.UpdatingEffect += AFKReplacement.OnUpdatingEffects;
         ServerSpecificSettings.Initialize();
     }
@@ -40,7 +39,6 @@ public class Main : Plugin<Config>
         LabApi.Events.Handlers.Scp049Events.ResurrectedBody -= OptOutSystem.RevivedZombie;
         LabApi.Events.Handlers.ServerEvents.RoundStarted -= OptOutSystem.RoundStart;
         LabApi.Events.Handlers.ServerEvents.RoundStarted -= AFKReplacement.OnServerRoundStarted;
-        LabApi.Events.Handlers.PlayerEvents.ChangingRole -= AFKReplacement.OnRoleChanging;
         LabApi.Events.Handlers.PlayerEvents.UpdatingEffect -= AFKReplacement.OnUpdatingEffects;
         ServerSpecificSettings.DeInitialize();
     }

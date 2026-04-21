@@ -17,7 +17,6 @@ public class AFKReplacement
     public static bool canReplace = false;
     //Uses IP instead of player info directly, otherwise references would be lost on disconnect
     public static List<string> offendingPlayers = new();
-    private static PlayerChangingRoleEventArgs cachedArgs;
     private static CoroutineHandle fillTimerCoroutine;
 
     //TODO: Queue disconnected players and roles, framework is already mostly in place
@@ -36,35 +35,6 @@ public class AFKReplacement
         Timing.CallDelayed(Main.Instance.Config.AFKReplacementValidTime, () => withinRoundStart = false);
     }
 
-    //Caching information before disconnect or when a main SCP spawns
-    public static void OnRoleChanging(PlayerChangingRoleEventArgs ev)
-    {
-        if (!Main.Instance.Config.AFKReplacement)
-            return;
-        if (!withinRoundStart)
-            return;
-        if (ev.Player == null)
-            return;
-        if (ev.Player.IsDummy)
-            return;
-
-        cachedArgs = ev;
-
-        //Caches custom role when it initially spawns (Anything -> SCP), needed to save custom role info
-        if (cachedArgs.NewRole.IsScp() && cachedArgs.NewRole != RoleTypeId.Scp0492)
-        {
-            CustomRoleBaseInfo savedCustomRole = null;
-
-            if (cachedCustomRole.ContainsKey(cachedArgs.NewRole))
-                cachedCustomRole.Remove(cachedArgs.NewRole);
-
-            if (SimpleCustomRoles.Helpers.CustomRoleHelpers.TryGetCustomRole(cachedArgs.Player, out savedCustomRole))
-                cachedCustomRole.Add(cachedArgs.NewRole, savedCustomRole);
-            else
-                cachedCustomRole.Add(cachedArgs.NewRole, null);
-        }
-    }
-
     internal static void OnDisconnected(Player player)
     {
         if (!withinRoundStart)
@@ -74,6 +44,14 @@ public class AFKReplacement
         {
             if (player.IsDummy)
                 return;
+
+            if (SimpleCustomRoles.Helpers.CustomRoleHelpers.TryGetCustomRole(player, out var savedCustomRole))
+            {
+                if (!cachedCustomRole.TryGetValue(player.Role, out var role) || role == null)
+                {
+                    cachedCustomRole[player.Role] = savedCustomRole;
+                }
+            }
 
             if (disconnectedRoleQueue.ContainsKey(player.Role))
                 disconnectedRoleQueue.Remove(player.Role);
@@ -118,6 +96,14 @@ public class AFKReplacement
 
         if (ev.Effect.name.ToLower() == "pitdeath")
         {
+            if (SimpleCustomRoles.Helpers.CustomRoleHelpers.TryGetCustomRole(ev.Player, out var savedCustomRole))
+            {
+                if (!cachedCustomRole.TryGetValue(ev.Player.Role, out var role) || role == null)
+                {
+                    cachedCustomRole[ev.Player.Role] = savedCustomRole;
+                }
+            }
+
             if (disconnectedRoleQueue.ContainsKey(ev.Player.Role))
                 disconnectedRoleQueue.Remove(ev.Player.Role);
 

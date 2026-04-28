@@ -1,6 +1,7 @@
 ﻿using LabApi.Loader;
 using LabApi.Loader.Features.Plugins;
 using LabApi.Loader.Features.Plugins.Enums;
+using HarmonyLib;
 
 namespace ZombieOptOut;
 
@@ -15,8 +16,13 @@ public class Main : Plugin<Config>
     public override Version RequiredApiVersion => LabApi.Features.LabApiProperties.CurrentVersion;
     public override LoadPriority Priority => LoadPriority.Lowest;
     #endregion
+
+    Harmony harmony;
+
     public override void Enable()
     {
+        harmony = new Harmony("ZombieOptOut");
+        harmony.PatchAll();
         Instance = this;
 
         LabApi.Events.Handlers.Scp049Events.ResurrectedBody += OptOutSystem.RevivedZombie;
@@ -24,11 +30,11 @@ public class Main : Plugin<Config>
         LabApi.Events.Handlers.ServerEvents.RoundStarted += AFKReplacement.OnServerRoundStarted;
         LabApi.Events.Handlers.PlayerEvents.ChangingRole += AFKReplacement.OnRoleChanging;
         LabApi.Events.Handlers.PlayerEvents.UpdatingEffect += AFKReplacement.OnUpdatingEffects;
-        LabApi.Events.Handlers.PlayerEvents.Dying += AFKReplacement.OnPlayerDying;
         ServerSpecificSettings.Initialize();
     }
     public override void Disable()
     {
+        harmony.UnpatchAll(harmony.Id);
         Instance = null;
 
         LabApi.Events.Handlers.Scp049Events.ResurrectedBody -= OptOutSystem.RevivedZombie;
@@ -36,7 +42,6 @@ public class Main : Plugin<Config>
         LabApi.Events.Handlers.ServerEvents.RoundStarted -= AFKReplacement.OnServerRoundStarted;
         LabApi.Events.Handlers.PlayerEvents.ChangingRole -= AFKReplacement.OnRoleChanging;
         LabApi.Events.Handlers.PlayerEvents.UpdatingEffect -= AFKReplacement.OnUpdatingEffects;
-        LabApi.Events.Handlers.PlayerEvents.Dying -= AFKReplacement.OnPlayerDying;
         ServerSpecificSettings.DeInitialize();
     }
 

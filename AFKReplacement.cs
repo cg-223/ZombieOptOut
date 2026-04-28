@@ -1,8 +1,10 @@
 ﻿using CustomPlayerEffects;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Features.Extensions;
+using LabApi.Features.Wrappers;
 using MEC;
 using PlayerRoles;
+using PlayerRoles.PlayableScps.Scp173;
 using SimpleCustomRoles.RoleYaml;
 
 namespace ZombieOptOut;
@@ -98,6 +100,19 @@ public class AFKReplacement
             return;
         if (!withinRoundStart)
             return;
+
+        // Account for SCP173 falling into pits because they were looked at over the top of a pit.
+        if (ev.Player.RoleBase is Scp173Role scp173 && scp173.SubroutineModule.TryGetSubroutine(out Scp173BlinkTimer timer) && timer.RemainingSustain > 0f)
+            return;
+        
+
+        // If there are enemy players in the same room (typical for when an SCP falls in a pit while chasing someone)
+        if (ev.Player.Room != null && ev.Player.Room.Players.Any(other_player => other_player.Faction != ev.Player.Faction))
+            return;
+        
+
+        // otherwise the SCP most likely jumped in a pit of their own accord instead of being "killed" via pit
+
 
         if (ev.Effect.name.ToLower() == "pitdeath")
         {

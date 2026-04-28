@@ -100,6 +100,8 @@ public class AFKReplacement
             return;
         if (!withinRoundStart)
             return;
+        if (ev.Player.Role == RoleTypeId.Scp0492)
+            return;
 
         // Account for SCP173 falling into pits because they were looked at over the top of a pit.
         if (ev.Player.RoleBase is Scp173Role scp173 && scp173.SubroutineModule.TryGetSubroutine(out Scp173BlinkTimer timer) && timer.RemainingSustain > 0f)
